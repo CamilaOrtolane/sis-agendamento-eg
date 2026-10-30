@@ -1,0 +1,10 @@
+{
+  "description": "Streamline academic appointment scheduling for students, allowing easy access to coordination availability and efficient management of their appointments.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
