@@ -26,7 +26,7 @@ import {
   Search,
   UserRound,
   Users,
-  Video,
+  Video, 
   X,
 } from "lucide-react"
 
