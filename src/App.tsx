@@ -26,7 +26,7 @@ import {
   Search,
   UserRound,
   Users,
-  Video,
+  Video, 
   X,
 } from "lucide-react"
 
@@ -37,7 +37,7 @@ type Appointment = {
   id: number
   subject: string
   date: string
-  dateLabel: string
+  dateLabel?: string
   time: string
   modality: Modality
   status: Status
@@ -63,63 +63,6 @@ const AVAILABILITY: Record<string, string[]> = {
   "2026-11-05": ["09:30", "11:30", "16:00"],
   "2026-11-10": ["08:30", "10:30", "14:00"],
 }
-
-const INITIAL_APPOINTMENTS: Appointment[] = [
-  {
-    id: 1,
-    subject: "Orientação sobre estágio",
-    date: "2026-10-26",
-    dateLabel: "26 de outubro de 2026",
-    time: "14:00",
-    modality: "Presencial",
-    status: "Agendado",
-    description:
-      "Gostaria de esclarecer dúvidas sobre a documentação necessária para iniciar o estágio supervisionado.",
-  },
-  {
-    id: 2,
-    subject: "Ajuste de matrícula",
-    date: "2026-10-22",
-    dateLabel: "22 de outubro de 2026",
-    time: "10:30",
-    modality: "Online",
-    status: "Em andamento",
-    description: "Preciso verificar a inclusão de uma disciplina optativa.",
-  },
-  {
-    id: 3,
-    subject: "Aproveitamento de disciplinas",
-    date: "2026-10-14",
-    dateLabel: "14 de outubro de 2026",
-    time: "09:00",
-    modality: "Presencial",
-    status: "Concluído",
-    description:
-      "Solicitação de análise das disciplinas cursadas em outra instituição.",
-    outcome: "Documentação recebida e encaminhada para análise do colegiado.",
-  },
-  {
-    id: 4,
-    subject: "Orientação para o TCC",
-    date: "2026-09-30",
-    dateLabel: "30 de setembro de 2026",
-    time: "15:00",
-    modality: "Online",
-    status: "Concluído",
-    description: "Dúvidas sobre o calendário de entregas do TCC.",
-    outcome: "Cronograma revisado e orientações enviadas por e-mail.",
-  },
-  {
-    id: 5,
-    subject: "Atividades complementares",
-    date: "2026-09-18",
-    dateLabel: "18 de setembro de 2026",
-    time: "11:00",
-    modality: "Presencial",
-    status: "Cancelado",
-    description: "Validação das horas de atividades complementares.",
-  },
-]
 
 function formatDate(date: string) {
   return new Intl.DateTimeFormat("pt-BR", {
@@ -251,10 +194,6 @@ function AppShell({
             onClick={() => nav("appointments")}
           >
             <ListChecks size={19} /> Meus atendimentos
-          </button>
-          <p className="nav-label nav-label--spaced">Minhas agendas</p>
-          <button className="nav-item" onClick={() => nav("agenda")}>
-            <Users size={19} /> Coordenação do curso
           </button>
         </nav>
         <div className="sidebar__help">
@@ -555,7 +494,8 @@ function Dashboard({
     },
   ]
   const next =
-    appointments.find((a) => a.status === "Agendado") || appointments[0]
+    appointments.find((a) => a.status === "Agendado") || appointments[0] || null
+
   return (
     <>
       <PageHeader
@@ -582,52 +522,62 @@ function Dashboard({
       </section>
       <div className="dashboard-grid">
         <section className="card next-card">
-          <div className="section-heading">
-            <div>
-              <span className="eyebrow">Próximo atendimento</span>
-              <h2>{next.subject}</h2>
+          {next ? (
+            <>
+              <div className="section-heading">
+                <div>
+                  <span className="eyebrow">Próximo atendimento</span>
+                  <h2>{next.subject}</h2>
+                </div>
+                <StatusBadge status={next.status} />
+              </div>
+              <div className="next-card__details">
+                <div>
+                  <span className="detail-icon">
+                    <Calendar size={18} />
+                  </span>
+                  <p>
+                    Data<strong>{next.dateLabel}</strong>
+                  </p>
+                </div>
+                <div>
+                  <span className="detail-icon">
+                    <Clock3 size={18} />
+                  </span>
+                  <p>
+                    Horário
+                    <strong>
+                      {next.time} às {next.time === "14:00" ? "14:30" : "15:00"}
+                    </strong>
+                  </p>
+                </div>
+                <div>
+                  <span className="detail-icon">
+                    <MapPin size={18} />
+                  </span>
+                  <p>
+                    {next.modality}
+                    <strong>
+                      {next.modality === "Presencial"
+                        ? "Sala da Coordenação"
+                        : "Link após confirmação"}
+                    </strong>
+                  </p>
+                </div>
+              </div>
+              <div className="card-footer">
+                <Button variant="secondary" onClick={() => showDetails(next)}>
+                  Ver detalhes
+                </Button>
+              </div>
+            </>
+          ) : (
+            <div className="empty-state empty-state--inline">
+              <CalendarCheck size={24} />
+              <h3>Nenhum agendamento ainda</h3>
+              <p>Seu próximo atendimento aparecerá aqui após o primeiro cadastro.</p>
             </div>
-            <StatusBadge status={next.status} />
-          </div>
-          <div className="next-card__details">
-            <div>
-              <span className="detail-icon">
-                <Calendar size={18} />
-              </span>
-              <p>
-                Data<strong>{next.dateLabel}</strong>
-              </p>
-            </div>
-            <div>
-              <span className="detail-icon">
-                <Clock3 size={18} />
-              </span>
-              <p>
-                Horário
-                <strong>
-                  {next.time} às {next.time === "14:00" ? "14:30" : "15:00"}
-                </strong>
-              </p>
-            </div>
-            <div>
-              <span className="detail-icon">
-                <MapPin size={18} />
-              </span>
-              <p>
-                {next.modality}
-                <strong>
-                  {next.modality === "Presencial"
-                    ? "Sala da Coordenação"
-                    : "Link após confirmação"}
-                </strong>
-              </p>
-            </div>
-          </div>
-          <div className="card-footer">
-            <Button variant="secondary" onClick={() => showDetails(next)}>
-              Ver detalhes
-            </Button>
-          </div>
+          )}
         </section>
         <section className="card availability-card">
           <div className="section-heading">
@@ -1120,9 +1070,28 @@ function Success({
   appointment,
   goTo,
 }: {
-  appointment: Appointment
+  appointment: Appointment | null
   goTo: (p: Page) => void
 }) {
+  if (!appointment) {
+    return (
+      <div className="success-page">
+        <div className="success-icon">
+          <Check size={32} />
+        </div>
+        <span className="eyebrow">Solicitação confirmada</span>
+        <h1>Agendamento realizado!</h1>
+        <p>Seu atendimento foi enviado com sucesso.</p>
+        <div className="success-actions">
+          <Button onClick={() => goTo("appointments")}>Ver meus atendimentos</Button>
+          <Button variant="secondary" onClick={() => goTo("dashboard")}>
+            Voltar ao início
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="success-page">
       <div className="success-icon">
@@ -1436,10 +1405,12 @@ function CancelModal({
   )
 }
 
+const API_URL = "http://localhost:4000/api"
+
 export default function App() {
   const [authenticated, setAuthenticated] = useState(false)
   const [page, setPage] = useState<Page>("dashboard")
-  const [appointments, setAppointments] = useState(INITIAL_APPOINTMENTS)
+  const [appointments, setAppointments] = useState<Appointment[]>([])
   const [draft, setDraft] = useState<Draft>({
     subject: "",
     modality: "",
@@ -1447,14 +1418,38 @@ export default function App() {
     time: "",
     description: "",
   })
-  const [lastAppointment, setLastAppointment] = useState(
-    INITIAL_APPOINTMENTS[0],
-  )
+  const [lastAppointment, setLastAppointment] = useState<Appointment | null>(null)
   const [selectedAppointment, setSelectedAppointment] =
     useState<Appointment | null>(null)
   const [cancelCandidate, setCancelCandidate] = useState<Appointment | null>(
     null,
   )
+
+  useEffect(() => {
+    const loadAppointments = async () => {
+      try {
+        const response = await fetch(`${API_URL}/appointments`)
+        if (!response.ok) {
+          throw new Error("Falha ao carregar agendamentos")
+        }
+
+        const data = await response.json()
+        const normalized = data.map((item: any) => ({
+          ...item,
+          dateLabel: item.dateLabel ?? formatDate(item.date),
+          modality: item.modality as Modality,
+          status: item.status as Status,
+        }))
+
+        setAppointments(normalized)
+        if (normalized.length > 0) setLastAppointment(normalized[0])
+      } catch (error) {
+        console.error("Erro ao buscar agendamentos:", error)
+      }
+    }
+
+    loadAppointments()
+  }, [])
 
   const currentSelected = useMemo(
     () =>
@@ -1469,33 +1464,77 @@ export default function App() {
     setDraft({ subject: "", modality: "", date, time, description: "" })
     setPage("new")
   }
-  const createAppointment = (data: Draft) => {
-    const created: Appointment = {
-      id: Math.max(...appointments.map((a) => a.id)) + 1,
-      subject: data.subject,
-      date: data.date,
-      dateLabel: formatDate(data.date),
-      time: data.time,
-      modality: data.modality as Modality,
-      status: "Agendado",
-      description:
-        data.description || "Nenhuma descrição adicional foi informada.",
+
+  const createAppointment = async (data: Draft) => {
+    try {
+      const response = await fetch(`${API_URL}/appointments`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          subject: data.subject,
+          modality: data.modality,
+          date: data.date,
+          time: data.time,
+          description:
+            data.description || "Nenhuma descrição adicional foi informada.",
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ message: "Erro ao criar agendamento." }))
+        throw new Error(error.message)
+      }
+
+      const created = await response.json()
+      const enriched: Appointment = {
+        ...created,
+        dateLabel: formatDate(created.date),
+        modality: created.modality as Modality,
+        status: created.status as Status,
+      }
+
+      setAppointments((current) => [enriched, ...current])
+      setLastAppointment(enriched)
+      setPage("success")
+    } catch (error) {
+      console.error(error)
+      window.alert(error instanceof Error ? error.message : "Erro ao criar agendamento.")
     }
-    setAppointments((current) => [created, ...current])
-    setLastAppointment(created)
-    setPage("success")
   }
-  const confirmCancellation = () => {
+
+  const confirmCancellation = async () => {
     if (!cancelCandidate) return
-    setAppointments((current) =>
-      current.map((a) =>
-        a.id === cancelCandidate.id
-          ? { ...a, status: "Cancelado" as Status }
-          : a,
-      ),
-    )
-    setCancelCandidate(null)
-    setSelectedAppointment(null)
+
+    try {
+      const response = await fetch(`${API_URL}/appointments/${cancelCandidate.id}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: "Cancelado" }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ message: "Erro ao cancelar agendamento." }))
+        throw new Error(error.message)
+      }
+
+      const updated = await response.json()
+      setAppointments((current) =>
+        current.map((a) =>
+          a.id === cancelCandidate.id
+            ? { ...a, status: updated.status as Status }
+            : a,
+        ),
+      )
+      setCancelCandidate(null)
+      setSelectedAppointment(null)
+    } catch (error) {
+      console.error(error)
+      window.alert(error instanceof Error ? error.message : "Erro ao cancelar agendamento.")
+    }
   }
 
   if (!authenticated) {
